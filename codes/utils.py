@@ -117,27 +117,53 @@ def LCD87I2(LIS_File_Path, IDreles):
     return barrido_rel
 
 
-def measIabc(LIS_File_Path, IDcurrents):
-    IDcurrents = IDcurrents.split(':')
+def GenericPH_012(LIS_File_Path, IDmeas):
+    IDmeas = IDmeas.split(':')
     lis = open(LIS_File_Path, "r")
     response = lis.readlines()
-    barrido_currents = {}
+    datos = {}
 
-    for abc in IDcurrents:
+    for abc in IDmeas:
         reSecO = [] ; reSec1 = [] ; reSec2 = [] ; imSecO = [] ; imSec1 = [] ; imSec2 = [] ; time = []
-        for lin in response:
-            if "BEGIN WRITE @ABC2SEQ " + abc in lin:
-                relay_data = response[response.index(lin) + 1].split()
+        for l in range(len(response)):
+            if "BEGIN WRITE @ABC2SEQ " + abc in (response[l]):
+                lin_data = response[l + 1].split()
                 
-                reSecO.append(float(relay_data[0])) ; reSec1.append(float(relay_data[1])) ; reSec2.append(float(relay_data[2])) ; imSecO.append(float(relay_data[3]))
-                imSec1.append(float(relay_data[4])) ; imSec2.append(float(relay_data[5])) ; time.append(float(relay_data[6]))
+                reSecO.append(float(lin_data[0])) ; reSec1.append(float(lin_data[1])) ; reSec2.append(float(lin_data[2])) ; imSecO.append(float(lin_data[3]))
+                imSec1.append(float(lin_data[4])) ; imSec2.append(float(lin_data[5])) ; time.append(float(lin_data[6]))
 
-        currDict = {"reSecO": reSecO, "reSec1": reSec1, "reSec2": reSec2, "imSecO": imSecO, "imSec1": imSec1, "imSec2": imSec2, "time": time}
-        barrido_currents["Imeas_" + abc] = currDict
-        del currDict
+        diccionario = {"reSecO": reSecO, "reSec1": reSec1, "reSec2": reSec2, "imSecO": imSecO, "imSec1": imSec1, "imSec2": imSec2, "time": time}
+        datos["PHmeas_" + abc] = diccionario
+        del diccionario
 
     lis.close()
-    return barrido_currents
+    return datos
+
+
+
+def GenericPH_abc(LIS_File_Path, IDmeas):
+    IDmeas = IDmeas.split(':')
+    lis = open(LIS_File_Path, "r")
+    response = lis.readlines()
+    datos = {}
+    
+    for meter in IDmeas:
+        re_PhA = [] ; re_PhB = [] ; re_PhC = [] ; im_PhA = [] ; im_PhB = [] ; im_PhC = [] ; time = []
+        for l in range(len(response)):
+            if "BEGIN WRITE @PHWRI " + meter in (response[l]):
+                lin_data = response[l + 1].split()
+                
+                re_PhA.append(float(lin_data[0])) ; re_PhB.append(float(lin_data[1])) ; re_PhC.append(float(lin_data[2]))
+                im_PhA.append(float(lin_data[3])) ; im_PhB.append(float(lin_data[4])) ; im_PhC.append(float(lin_data[5]))
+                time.append(float(lin_data[6]))
+
+        diccionario = {"re_PhA": re_PhA, "re_PhB": re_PhB, "re_PhC": re_PhC, "im_PhA": im_PhA, "im_PhB": im_PhB, "im_PhC": im_PhC, "time": time}
+        datos["PHmeas_" + meter] = diccionario
+        del diccionario
+
+    lis.close()
+    return datos
+
 
 
 def FRT(LIS_File_Path, IDFRT):

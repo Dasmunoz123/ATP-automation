@@ -15,7 +15,8 @@ def executeATP(caso,nodos,impedancias,ATP_file,ATP_tmp,lis_tmp,tpbig_dir):
     nodo_dict = {}
     for nodo in nodos:
         utils.posiciones(ATP_file, ATP_tmp, caso['PosicionNodos'],caso['NodoReplace'], nodo)
-        distance_dict = {}; currents_dict = {}; diferential_dict = {}
+        
+        distance_dict = {}; PHseq_dict = {}; diferential_dict = {}; PHabc_dict = {}
         
         for imped in impedancias:
             utils.impedancias(ATP_tmp, caso['PosicionImpedancias'], imped, [caso['NodoA'],caso['NodoB']])
@@ -29,13 +30,15 @@ def executeATP(caso,nodos,impedancias,ATP_file,ATP_tmp,lis_tmp,tpbig_dir):
             except OSError: sys.exit("Paila")
 
             if caso['Funcion21'] == 'Si': distance_dict[imped[3]] = utils.relay21(lis_tmp, caso['ID21'])
-            if caso['Corrientes'] == 'Si': currents_dict[imped[3]] = utils.measIabc(lis_tmp, caso['IDIabc'])
+            if caso['PH_012'] == 'Si': PHseq_dict[imped[3]] = utils.GenericPH_012(lis_tmp, caso['IDPH012'])
             if caso['Funcion87'] == 'Si': diferential_dict[imped[3]] = utils.relay87(lis_tmp, caso['ID87'])
+            if caso['PH_abc'] == 'Si': PHabc_dict[imped[3]] = utils.GenericPH_abc(lis_tmp, caso['IDPHabc'])
 
         aux_dict = {}
         if caso['Funcion21'] == 'Si': aux_dict['R21'] = distance_dict
-        if caso['Corrientes'] == 'Si': aux_dict['Iabc'] = currents_dict
+        if caso['PH_012'] == 'Si': aux_dict['PH012'] = PHseq_dict
         if caso['Funcion87'] == 'Si':aux_dict['R87'] = diferential_dict
+        if caso['PH_abc'] == 'Si': aux_dict['PHabc'] = PHabc_dict
         
         nodo_dict[nodo] = aux_dict
 
